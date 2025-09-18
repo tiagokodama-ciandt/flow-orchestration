@@ -1,4 +1,4 @@
-langgraph>0.2.27
+langgraph
 uvicorn
 langchain-core==0.3.76
 langchain[openai]
