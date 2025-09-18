@@ -1,5 +1,5 @@
 """
-LangGraph chatbot implementation with streaming capabilities.
+LangGraph chatbot implementation with streaming capabilities and memory.
 """
 from typing import Annotated, Dict, Any
 
@@ -16,7 +16,6 @@ class State(TypedDict):
     messages: Annotated[list[Any], add_messages]
 
 
-# Define the chatbot node function
 def chatbot(state: State) -> Dict[str, Any]:
     """Process user messages and generate a response."""
     return {"messages": [llm.invoke(state["messages"])]}
@@ -39,24 +38,11 @@ def create_chatbot_graph() -> StateGraph:
     return graph_builder
 
 
-def stream_graph_updates(graph: Any, user_input: str) -> None:
-    """
-    Stream updates from the graph execution.
-
-    Args:
-        graph: The compiled graph to execute
-        user_input: The user's message
-    """
-    initial_state = {"messages": [{"role": "user", "content": user_input}]}
-
-    for event in graph.stream(initial_state):
-        for value in event.values():
-            print("Assistant:", value["messages"][-1].content)
-
-
 def run_chat_loop() -> None:
-    """Run the interactive chat loop."""
+    """Run the interactive chat loop with memory."""
     graph = create_chatbot_graph().compile()
+
+    message_history = []
 
     while True:
         try:
@@ -64,16 +50,22 @@ def run_chat_loop() -> None:
             if user_input.lower() in ["quit", "exit", "q"]:
                 print("Goodbye!")
                 break
-            stream_graph_updates(graph, user_input)
+
+            message_history.append({"role": "user", "content": user_input})
+
+            initial_state = {"messages": message_history}
+
+            for event in graph.stream(initial_state):
+                for value in event.values():
+                    assistant_message = value["messages"][-1]
+                    print("Assistant:", assistant_message.content)
+
+                    message_history.append(assistant_message)
         except (KeyboardInterrupt, EOFError):
             print("\nChat session terminated.")
             break
         except Exception as e:
             print(f"Error: {e}")
-            # Fallback if input() is not available
-            fallback_input = "What do you know about LangGraph?"
-            print(f"User: {fallback_input}")
-            stream_graph_updates(graph, fallback_input)
             break
 
 
