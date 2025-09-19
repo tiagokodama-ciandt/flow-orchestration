@@ -14,10 +14,22 @@
             }
         },
         {
-            "name": "Python: Main",
+            "name": "Python: chatbot",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/orchestrations/chatbot/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "python": "${command:python.interpreterPath}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Python: web search",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/orchestrations/websearch/main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "python": "${command:python.interpreterPath}",

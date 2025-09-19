@@ -2,4 +2,6 @@ langgraph
 uvicorn
 langchain-core==0.3.76
 langchain[openai]
+langchain-community
+tavily-python
 python-dotenv
